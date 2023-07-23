@@ -1,4 +1,5 @@
 frappe.ui.form.on('Issue', {
+    
 	after_save:function(frm) {
 		// your code here
 		if(frm.doc.status == "Closed"){
@@ -23,18 +24,35 @@ frappe.ui.form.on('Issue', {
                 
             frm.set_value('work_duration_', days + " "+ hours + ":"+mins+":"+secs);
                // frm.set_value('user_resolution_time', "10 1:20:55");
-               if (!frm._saving) {
-            // Set the flag to indicate that the save process has started
-                    frm._saving = true;
+              
             // Call the save function
-                    frm.save();
-                }
+            
+             frm.save();
+             
                 
                 
            }
            
         },
+        
+        onload:function(frm){
+            	var fields = frm.fields_dict;
+		
+        if(frm.doc.status == "Closed"){
+        // Iterate through the fields
+            for (var fieldname in fields) {
+            // Set all fields as read-only except for the specific field
+                if (fieldname !== 'status') {
+                   frm.set_df_property(fieldname, 'read_only', 1);
+                    
+                }
+            }
+        }
+            
+        },
 	refresh:function(frm){
+	    
+	    if(frm.doc.opened_by === undefined){
 	    frappe.call({
             method: 'frappe.client.get_value',
             args: {
@@ -49,7 +67,7 @@ frappe.ui.form.on('Issue', {
                 frm.set_value('opened_by', full_name);
                 frm.set_df_property('opened_by', 'read_only', 1);
             }
-        });
+        });}
 	},
 		status:function(frm){
 		    
@@ -77,7 +95,7 @@ frappe.ui.form.on('Issue', {
             }
         }
 		
-		    
+		 //if(frm.doc.closed_by === undefined){
 	    frappe.call({
             method: 'frappe.client.get_value',
             args: {
@@ -92,7 +110,7 @@ frappe.ui.form.on('Issue', {
                 frm.set_value('closed_by', full_name);
                 frm.set_df_property('closed_by', 'read_only', 1);
             }
-        });
+        });//}
 	}
 	
 })
